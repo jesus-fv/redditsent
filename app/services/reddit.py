@@ -45,14 +45,3 @@ def search_posts(query: str, sort: str = "new"):
         sort=sort,
         posts=posts
     )
-'''
-query_reddit = "Barcelona"
-sort_reddit = "new"
-
-posts = search_posts(query_reddit, sort_reddit)
-
-
-
-for post in posts.posts:
-    print(f"Title: {post.título}")
-'''
