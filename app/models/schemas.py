@@ -16,5 +16,3 @@ class SearchResponse(BaseModel):
     subreddit: Optional[str] = None
     sort: str
     posts: List[RedditPost]
-
-settings = Settings()
