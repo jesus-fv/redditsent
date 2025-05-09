@@ -16,7 +16,7 @@ async def search_reddit(
     sort: Optional[str] = Query("new", enum=["new", "hot", "top", "relevant"]),
 ):
     """
-    Search Reddit posts based on a query and sort type.
+    Búsqueda de publicaciones en Reddit según una consulta y tipo de orden.
     """
     
     try:

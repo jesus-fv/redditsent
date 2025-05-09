@@ -2,13 +2,13 @@ from pydantic import BaseModel
 from typing import List, Optional
 class RedditPost(BaseModel):
     id: str
-    título: str
+    title: str
     subreddit: str
     url: str
-    texto: str
-    puntuación: int
-    comentarios: int
-    fecha: str
+    text: str
+    score: int
+    comments: int
+    date: str
 
 class SearchResponse(BaseModel):
     query: str

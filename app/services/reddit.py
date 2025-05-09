@@ -26,16 +26,17 @@ def search_posts(query: str, sort: str = "new"):
         
         if not post.selftext:
             continue
+
         
         posts.append(RedditPost(
             id=post.id,
-            título=post.title,
+            title=post.title,
             subreddit=post.subreddit.display_name,
             url=f"https://www.reddit.com{post.permalink}",
-            puntuación=post.score,
-            comentarios=post.num_comments,
-            fecha=created_time.strftime('%Y-%m-%d %H:%M:%S'),
-            texto=post.selftext,
+            score=post.score,
+            comments=post.num_comments,
+            date=created_time.strftime('%Y-%m-%d %H:%M:%S'),
+            text=post.selftext,
         ))
     
     # Construir respuesta
