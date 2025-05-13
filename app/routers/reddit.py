@@ -13,7 +13,7 @@ router = APIRouter(
 @router.get("/search", response_model=SearchResponse)
 async def search_reddit(
     query: Annotated[str, Query(min_length=1, description="Tema sobre el que buscar en Reddit")],
-    sort: Optional[str] = Query("new", enum=["new", "hot", "top", "relevant"]),
+    sort: Optional[str] = Query("relevant", enum=["new", "hot", "top", "relevant"]),
 ):
     """
     Búsqueda de publicaciones en Reddit según una consulta y tipo de orden.

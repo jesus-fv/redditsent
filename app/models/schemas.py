@@ -7,7 +7,7 @@ class RedditPost(BaseModel):
     url: str
     text: str
     score: int
-    comments: int
+    comments: List[str]
     date: str
 
 class SearchResponse(BaseModel):
