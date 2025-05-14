@@ -7,6 +7,7 @@ from app.utils.text_cleaner import text_cleaner
 import asyncio
 import concurrent.futures
 
+# Inicializar Reddit API
 reddit = praw.Reddit(
     client_id=settings.reddit_client_id,
     client_secret=settings.reddit_client_secret,
@@ -14,22 +15,28 @@ reddit = praw.Reddit(
 )
 
 # Buscar posts en Reddit
-# @app.get("/reddit/search", response_model=SearchResponse)
 def search_posts(query: str, sort: str, limit: int = 15) -> SearchResponse:
     
+    # Validar parámetros
     if sort not in ["new", "hot", "top", "relevant"]:
         raise ValueError("Ordenación inválida. Elije entre 'new', 'hot', 'top' or 'relevant'.")
 
+    # Consulta a Reddit
     search_results = reddit.subreddit("all").search(query, sort=sort, limit=25)
+    
     post = [post for post in search_results]
     
     def process_post(post):
+        
         try:
+            
             created_time = datetime.datetime.fromtimestamp(post.created_utc)
             clean_text = text_cleaner(post.selftext)
+            
             posts_comments: List[str] = []
     
             try:
+                post.comment_sort = 'top'
                 post.comments.replace_more(limit=0)
                 for top_level_comment in list(post.comments)[:10]:
                     if hasattr(top_level_comment, 'body') and top_level_comment.body:
@@ -55,7 +62,8 @@ def search_posts(query: str, sort: str, limit: int = 15) -> SearchResponse:
             return None
             
     processed_posts_results = []
-    # Construir respuesta
+    
+    # Usar ThreadPoolExecutor para procesar los posts en paralelo
     with concurrent.futures.ThreadPoolExecutor(max_workers=15) as executor:
         processed_posts_results = list(executor.map(process_post, post))
         
