@@ -27,3 +27,6 @@ update-checker==0.18.0
 urllib3==2.4.0
 uvicorn==0.34.2
 websocket-client==1.8.0
+torch==2.7.0
+transformers==4.51.3
+huggingface-hub==0.31.2
