@@ -1,11 +1,11 @@
 import praw
-from typing import List
+from typing import List, Dict, Any
 import datetime
 from app.core.config import settings
 from app.models.schemas import RedditPost, SearchResponse
 from app.utils.text_cleaner import text_cleaner
-import asyncio
 import concurrent.futures
+from app.services.sentiment import sentiment_analysis
 
 # Inicializar Reddit API
 reddit = praw.Reddit(
@@ -33,15 +33,21 @@ def search_posts(query: str, sort: str, limit: int = 15) -> SearchResponse:
             created_time = datetime.datetime.fromtimestamp(post.created_utc)
             clean_text = text_cleaner(post.selftext)
             
-            posts_comments: List[str] = []
+            posts_comments: List[Dict[str, Any]] = []
     
             try:
                 post.comment_sort = 'top'
                 post.comments.replace_more(limit=0)
-                for top_level_comment in list(post.comments)[:10]:
+                
+                for top_level_comment in post.comments.list()[:10]:
+                    
                     if hasattr(top_level_comment, 'body') and top_level_comment.body:
-                        clean_comments = text_cleaner(top_level_comment.body[:500])
-                        posts_comments.append(clean_comments)
+                        clean_comment = text_cleaner(top_level_comment.body[:500])
+                        sent_label = sentiment_analysis(clean_comment)
+                        posts_comments.append({
+                            "text": clean_comment,
+                            "sentiment": sent_label
+                        })
                     
             except Exception as e:
                 print(f"Error cargando comentarios para post {post.id}: {e}")

@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 class RedditPost(BaseModel):
     id: str
     title: str
@@ -7,7 +7,7 @@ class RedditPost(BaseModel):
     url: str
     text: str
     score: int
-    comments: List[str]
+    comments: List[Dict[str, Any]]
     date: str
 
 class SearchResponse(BaseModel):

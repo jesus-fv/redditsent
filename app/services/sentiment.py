@@ -1,13 +1,23 @@
+from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline
+import torch
 
-from transformers import pipeline
+model_name = "tabularisai/multilingual-sentiment-analysis"
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForSequenceClassification.from_pretrained(model_name)
 
-emotion_pipe = pipeline("text-classification", model="SamLowe/roberta-base-go_emotions", top_k=None)
+device = 0 if torch.cuda.is_available() else -1
+if device == 0:
+    model.cuda()
 
-def analyze_emotions(text: str, threshold: float = 0.4):
-    results = emotion_pipe(text)[0]  # [0] porque pipeline devuelve una lista de listas
-    # Filtrar emociones por score
-    filtered = [res for res in results if res["score"] >= threshold]
-    return filtered
+classifier = pipeline("sentiment-analysis", model=model, tokenizer=tokenizer, device=device)
 
-print(analyze_emotions("I love programming!"))
-print(analyze_emotions("I hate bugs!"))
+def sentiment_analysis(text):
+
+    res = classifier(text)[0]
+    
+    sent = res["label"]
+    
+    if len(sent) < 5 or sent == "[deleted]" or sent == "[removed]":
+        sent = "Unknown"
+    
+    return sent
