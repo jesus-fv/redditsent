@@ -17,7 +17,7 @@ def sentiment_analysis(text):
     
     sent = res["label"]
     
-    if len(sent) < 5 or sent == "[deleted]" or sent == "[removed]":
+    if len(text) < 5 or text == "[deleted]" or text == "[removed]":
         sent = "Unknown"
     
     return sent
