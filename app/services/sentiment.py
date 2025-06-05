@@ -1,7 +1,7 @@
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline
 import torch
 
-model_name = "tabularisai/multilingual-sentiment-analysis"
+model_name = "cardiffnlp/twitter-roberta-base-sentiment-latest" 
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForSequenceClassification.from_pretrained(model_name)
 
