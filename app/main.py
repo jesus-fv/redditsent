@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
-from app.routers.reddit import router as reddit_router
+from app.routers.analysis import router as analysis
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -20,7 +20,7 @@ app.add_middleware(
 )
 
 # Incluir routers
-app.include_router(reddit_router)
+app.include_router(analysis)
 
 @app.get("/")
 async def root():

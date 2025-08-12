@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import List, Optional, Dict, Any
+
 class RedditPost(BaseModel):
     id: str
     title: str

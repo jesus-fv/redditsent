@@ -4,15 +4,11 @@ from typing import Optional, Annotated
 from app.services.reddit import search_posts
 from app.models.schemas import SearchResponse
 
-router = APIRouter(
-    prefix="/reddit",
-    tags=["reddit"],
-    responses={404: {"description": "Not found"}},
-)
+router = APIRouter(prefix="/analysis", tags=["Analysis"])
 
-@router.get("/search", response_model=SearchResponse)
+@router.get("/", response_model=SearchResponse)
 async def search_reddit(
-    query: Annotated[str, Query(min_length=1, description="Tema sobre el que buscar en Reddit")],
+    query: Annotated[str, Query(min_length=1, description="Tema sobre el que buscar")],
     sort: Optional[str] = Query("relevant", enum=["new", "hot", "top", "relevant"]),
 ):
     """
