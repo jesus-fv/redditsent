@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from . import analysis
+from . import search
 
 router = APIRouter()
-router.include_router(analysis.router)
+router.include_router(search.router)

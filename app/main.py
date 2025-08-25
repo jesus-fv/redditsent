@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
-from app.routers.analysis import router as analysis
+from app.routers.search import router as search
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -20,8 +20,4 @@ app.add_middleware(
 )
 
 # Incluir routers
-app.include_router(analysis)
-
-@app.get("/")
-async def root():
-    return {"message": "Welcome to the RedditSent!"}
+app.include_router(search)
