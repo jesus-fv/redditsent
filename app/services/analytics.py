@@ -13,6 +13,4 @@ def calculate_distribution(posts):
     total = len(sentiments)
     percentages = {s: round((c / total) * 100) for s, c in count.items()}
 
-    print(percentages)
-
     return percentages
