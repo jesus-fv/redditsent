@@ -2,7 +2,6 @@ from fastapi import APIRouter, HTTPException, Query
 from typing import Optional, Annotated
 
 from app.services.search import search_posts
-from app.services.analytics import calculate_distribution
 from app.models.schemas import SearchResponse
 
 router = APIRouter(prefix="/search", tags=["Search"])
@@ -18,7 +17,6 @@ async def search_reddit(
     
     try:
         response = search_posts(query, sort)
-        calculate_distribution(response)
         return response
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

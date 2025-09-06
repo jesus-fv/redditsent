@@ -15,9 +15,9 @@ def sentiment_analysis(text):
 
     res = classifier(text)[0]
     
-    sent = res["label"]
-    
     if len(text) < 5 or text == "[deleted]" or text == "[removed]":
-        sent = "Unknown"
+        sent = "unknown"
+
+    res['score'] = round(res['score'], 2)
     
-    return sent
+    return res
