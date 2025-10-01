@@ -6,6 +6,7 @@ from app.models.schemas import Post, SearchResponse
 from app.utils.text_cleaner import text_cleaner
 import concurrent.futures
 from app.services.sentiment import sentiment_analysis
+from app.services.analytics import compute_metrics
 
 # Inicializar Reddit API
 reddit = praw.Reddit(
@@ -31,13 +32,12 @@ def search_posts(query: str, sort: str, limit: int = 25) -> SearchResponse:
         try:
             
             created_time = datetime.datetime.fromtimestamp(post.created_utc)
-            clean_text = text_cleaner(post.selftext)
 
             #Contenido multimedia del post
             media_url = None
             if post.is_video:
                 if post.media and 'reddit_video' in post.media:
-                    media_irl = post.media['reddit_video']['fallback_url']
+                    media_url = post.media['reddit_video']['fallback_url']
             elif hasattr(post, 'is_gallery') and post.is_gallery:
                 media_url = 'gallery'
             elif post.url.endswith(('jpg', 'jpeg', 'png', 'gif')):
@@ -97,4 +97,3 @@ def search_posts(query: str, sort: str, limit: int = 25) -> SearchResponse:
         sort=sort,
         posts=final_posts
     )
-    
