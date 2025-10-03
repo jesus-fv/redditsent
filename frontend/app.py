@@ -1,17 +1,12 @@
 import streamlit as st
 import requests
 import pandas as pd
-from PIL import Image
 import plotly.express as px
 import plotly.graph_objects as go
+from urllib.parse import urlparse
+from urllib.parse import quote_plus
 
 API_URL = "http://localhost:8000"
-
-
-positive = Image.open("frontend/public/positive.png")
-negative = Image.open("frontend/public/negative.png")
-neutral = Image.open("frontend/public/neutral.png")
-unknown = Image.open("frontend/public/unknown.png")
 
 st.set_page_config(page_title="Reddit Sentiment Dashboard", layout="wide")
 
@@ -30,7 +25,7 @@ with st.form(key="search_form"):
     
 
 if not submit:
-    #st.info("Introduce un tema y pulsa Buscar para ver los resultados.")
+    st.info("Introduce un tema y pulsa Buscar para ver los resultados.")
     st.stop()
 
 
@@ -46,21 +41,22 @@ with st.spinner("Buscando en Reddit..."):
     data = resp.json()
     
 st.write("")
-st.write("")
+
+r_global = data.get('global', {})
+subs = data.get("subreddits", {})
 
 top_subreddit = None
 if data.get("subreddits"):
-    top_subreddit = sorted(data["subreddits"], key=lambda s: s.get("total_comments",0), reverse=True)[0]["subreddit"]
+    top_subreddit = sorted(subs, key=lambda s: s.get("total_comments",0), reverse=True)[0]["subreddit"]
 
 col1, col2, col3, col4 = st.columns([2, 2, 2, 3])
 
-col1.metric("Publicaciones Analizadas", data['global']['total_posts'])
-col2.metric("Comentarios Totales", data['global']['total_comments'])
-col3.metric("Sentimiento dominante", data['global']['dominant'])
-col4.metric("Top subreddit", top_subreddit)
+col1.metric("Publicaciones Analizadas", r_global.get('total_posts'))
+col2.metric("Comentarios Totales", r_global.get('total_comments'))
+col3.metric("Sentimiento dominante", r_global.get('dominant'))
+col4.metric("Subreddit con mas posts", "r/" + top_subreddit)
 
 st.markdown("---")
-st.write("")
 
 left_col, right_col = st.columns([2, 2])
 
@@ -76,14 +72,18 @@ with left_col:
             "unknown": "lightgray"
         }
         
-        fig = px.pie(df_counts, names="sentiment", values="count", hole=0.45, title="Distribución global de sentimientos", color="sentiment", color_discrete_map=color_map)
+        fig = px.pie(df_counts, names="sentiment", values="count", hole=0.45, color="sentiment", color_discrete_map=color_map)
+        fig.update_layout(
+            title="Distribución global de sentimientos",
+            title_x=0.18
+        )
         st.plotly_chart(fig, use_container_width=True)
     else:
         st.info("No hay datos.")
 
 with right_col:
     
-    sentiment_score = data['global']['mean_sentiment_score']
+    sentiment_score = r_global.get('mean_sentiment_score')
 
     fig = go.Figure(go.Indicator(
         mode = "gauge+number",
@@ -102,36 +102,95 @@ with right_col:
     ))
 
     st.plotly_chart(fig, use_container_width=True)
-
         
 st.markdown("---")
 
-# ===== Posts list (full width) =====
-st.subheader("Posts encontrados")
-posts = []
-for s in data.get("subreddits", []):
-    for p in s.get("posts", []):
-        posts.append({
-            "id": p["id"],
-            "title": p["title"],
-            "subreddit": s["subreddit"],
-            "karma": p.get("karma", p.get("score", None)),
-            "num_comments": p.get("num_comments", None),
-            "dominant": p.get("sentiments", {}).get("dominant")
-        })
-df_posts = pd.DataFrame(posts)
-if not df_posts.empty:
-    st.dataframe(df_posts.sort_values("karma", ascending=False).reset_index(drop=True), height=300)
+st.subheader("Subreddits")
+st.markdown("Los 10 subreddits más activos en los posts analizados")
+
+if not subs:
+    st.info("No hay subreddits para mostrar.")
 else:
-    st.info("No se encontraron posts.")
-
-st.markdown("---")
-
-# ===== Post detail: select and expand =====
-st.subheader("Detalle de un post")
-post_ids = df_posts["id"].tolist() if not df_posts.empty else []
-selected_id = st.selectbox("Selecciona un post para ver detalle", options=post_ids) if post_ids else None
-
-st.markdown("---")
-st.caption("Dashboard creado con Streamlit • Backend: FastAPI • Repo: tu-repo-link")
     
+    subs_sorted = sorted(subs, key=lambda s: s.get("total_comments", 0), reverse=True)
+
+    for s in subs_sorted[:10]:
+        name = s.get("subreddit") or "unknown"
+        total_posts = s.get("total_posts", 0)
+        total_comments = s.get("total_comments", 0)
+        pct_pos = s.get("percentages", {}).get("positive", 0.0)
+        pct_neg = s.get("percentages", {}).get("negative", 0.0)
+
+        c1, c2, c3, c4, c5 = st.columns(5)
+        
+        with c1:
+            st.markdown(f"**[{name}](https://www.reddit.com/r/{quote_plus(name)})**", unsafe_allow_html=True)                
+                
+        with c2:
+            st.write(f"📌 {total_posts}")
+            
+        with c3:
+            st.write(f"💬 {total_comments}")
+
+        with c4:
+            st.write(f"✅ {pct_pos:.1f}%")
+            
+        with c5:
+            st.write(f"❌ {pct_neg:.1f}%")
+            
+st.markdown("---")
+
+st.subheader("Posts")
+st.markdown("Los 10 posts más activos")
+
+st.write("")
+      
+posts = data["posts"]
+posts_sorted = sorted(posts, key=lambda p: p.get("num_comments", 0), reverse=True)
+
+for p in posts_sorted[:10]:
+    cols = st.columns([5,2,1,1,1])
+    
+    title = p['title']
+    max_len = 70
+    display_title = title if len(title) <= max_len else title[:max_len] + "..."
+    title_md = f"[{display_title}]({p['url']})"
+    
+    subreddit = f'[r/{p.get("subreddit")}](https://www.reddit.com/r/{quote_plus(p.get("subreddit"))})'
+    cols[0].markdown(title_md, unsafe_allow_html=True)
+    
+    cols[1].markdown(subreddit, unsafe_allow_html=True)
+    
+    cols[2].write(f'🔺 {p.get("karma")}')
+    
+    cols[3].write(f'💬 {p.get("num_comments")}')
+    
+    dom_sent = p["sentiments"]["dominant"]
+
+    icons = {
+        "positive": "✅",
+        "negative": "❌",
+        "neutral": "😐"
+    }
+
+    dom = f"{icons.get(dom_sent, '❓')} {dom_sent}"
+        
+    badge = f"**{dom.capitalize()}**"
+    cols[4].write(badge)
+    
+    with st.expander("Ver detalle"):
+        if "comments" not in p:
+            detail = requests.get(f"{API_URL}/posts/{p['id']}").json()
+        else:
+            detail = p
+        dfc = pd.DataFrame(list(detail["sentiments"]["counts"].items()), columns=["s","c"])
+        fig = px.pie(dfc, names="s", values="c", hole=0.5, color="s", color_discrete_map=color_map)
+        st.plotly_chart(fig, use_container_width=True, key=f'pie_sub_{p.get("id")}')
+        for c in detail.get("top_comments", [])[:5]:
+            st.markdown(f"- **{c['sentiment'].upper()}** ({c.get('sentiment_score',0):.2f}) — {c['body'][:200]}")  
+
+
+st.write("")
+st.markdown("*Nota: Se toma una muestra de hasta 50 publicaciones, y para cada una se analizan un máximo de 15 comentarios, con el fin de no saturar el proceso. En el apartado de *posts*, los comentarios mostrados no coinciden con los analizados individualmente, ya que se presenta el total de comentarios por publicación, no solo los que fueron analizados.")
+st.markdown("---")
+st.caption("Dashboard creado con Streamlit • Backend: FastAPI • Análisis de sentimientos: cardiffnlp/twitter-roberta-base-sentiment-latest")

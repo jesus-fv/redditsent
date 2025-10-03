@@ -49,7 +49,7 @@ def search_posts(query: str, sort: str, limit: int = 50) -> SearchResponse:
                 post.comment_sort = 'best'
                 post.comments.replace_more(limit=0)
                 
-                for top_level_comment in post.comments.list()[:10]:
+                for top_level_comment in post.comments.list()[:15]:
                     
                     if hasattr(top_level_comment, 'body') and top_level_comment.body:
                         clean_comment = text_cleaner(top_level_comment.body[:500])

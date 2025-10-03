@@ -58,29 +58,29 @@ def compute_metrics(posts, query: str = "", sort: str = ""):
     global_counts = Counter()
     for p in processed_posts:
         global_counts.update(p["sentiments"]["counts"])
-    total_comments = sum(global_counts.values()) or 0
-    global_percentages = {k: round((global_counts.get(k,0) / total_comments * 100) if total_comments else 0.0, 2) for k in SENT_CATS}
+    total_analyzed_comments = sum(global_counts.values()) or 0
+    global_percentages = {k: round((global_counts.get(k,0) / total_analyzed_comments * 100) if total_analyzed_comments else 0.0, 2) for k in SENT_CATS}
 
     scores = [c.get("sentiment_score") for c in all_comments if c.get("sentiment_score") is not None]
     mean_global_score = round(sum(scores)/len(scores),4) if scores else None
-    dominant_global = max(SENT_CATS, key=lambda k: global_counts.get(k, 0)) if total_comments else "unknown"
+    dominant_global = max(SENT_CATS, key=lambda k: global_counts.get(k, 0)) if total_analyzed_comments else "unknown"
 
     subreddits_summary = []
     for sub, posts_list in subreddit_map.items():
         sub_counter = Counter()
         for p in posts_list:
             sub_counter.update(p["sentiments"]["counts"])
-        sub_total = sum(sub_counter.values()) or 0
-        sub_percentages = {k: round((sub_counter.get(k,0) / sub_total * 100) if sub_total else 0.0, 2) for k in SENT_CATS}
+        sub_total_analyzed = sum(sub_counter.values()) or 0
+        sub_percentages = {k: round((sub_counter.get(k,0) / sub_total_analyzed * 100) if sub_total_analyzed else 0.0, 2) for k in SENT_CATS}
 
         mean_scores = [p["sentiments"]["mean_sentiment_score"] for p in posts_list if p["sentiments"]["mean_sentiment_score"] is not None]
         mean_sub_score = round(sum(mean_scores)/len(mean_scores),4) if mean_scores else None
-        dominant_sub = max(SENT_CATS, key=lambda k: sub_counter.get(k, 0)) if sub_total else "unknown"
+        dominant_sub = max(SENT_CATS, key=lambda k: sub_counter.get(k, 0)) if sub_total_analyzed else "unknown"
 
         subreddits_summary.append({
             "subreddit": sub,
             "total_posts": len(posts_list),
-            "total_comments": sub_total,
+            "total_comments": sub_total_analyzed,
             "counts": {k: int(sub_counter.get(k,0)) for k in SENT_CATS},
             "percentages": sub_percentages,
             "mean_sentiment_score": mean_sub_score,
@@ -93,7 +93,7 @@ def compute_metrics(posts, query: str = "", sort: str = ""):
         "sort": sort,
         "global": {
             "total_posts": len(posts),
-            "total_comments": total_comments,
+            "total_comments": total_analyzed_comments,
             "counts": {k: int(global_counts.get(k,0)) for k in SENT_CATS},
             "percentages": global_percentages,
             "mean_sentiment_score": mean_global_score,
