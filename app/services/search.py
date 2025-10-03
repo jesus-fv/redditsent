@@ -16,14 +16,14 @@ reddit = praw.Reddit(
 )
 
 # Buscar posts en Reddit
-def search_posts(query: str, sort: str, limit: int = 25) -> SearchResponse:
+def search_posts(query: str, sort: str, limit: int = 50) -> SearchResponse:
 
     # Validar parámetros
     if sort not in ["new", "hot", "top", "relevant"]:
         raise ValueError("Ordenación inválida. Elije entre 'new', 'hot', 'top' or 'relevant'.")
 
     # Consulta a Reddit
-    search_results = reddit.subreddit("all").search(query, sort=sort, limit=25)
+    search_results = reddit.subreddit("all").search(query, sort=sort, limit=limit)
 
     post = [post for post in search_results]
     

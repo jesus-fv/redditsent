@@ -12,12 +12,22 @@ if device == 0:
 classifier = pipeline("sentiment-analysis", model=model, tokenizer=tokenizer, device=device)
 
 def sentiment_analysis(text):
-
-    res = classifier(text)[0]
     
     if len(text) < 5 or text == "[deleted]" or text == "[removed]":
-        sent = "unknown"
-
-    res['score'] = round(res['score'], 2)
+        return {"label": "unknown", "score": None}
     
-    return res
+    res = classifier(text)[0]
+    label = res['label']
+    confidence = res['score']
+    
+    if label == 'positive':
+        sentiment_score = confidence
+    elif label == 'negative':
+        sentiment_score = -confidence
+    else:
+        sentiment_score = 0.0
+
+    return {
+        "label": label,
+        "score": round(sentiment_score, 4)
+    }
