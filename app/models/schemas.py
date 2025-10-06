@@ -4,6 +4,7 @@ from typing import List, Dict, Any, Optional
 class Post(BaseModel):
     id: str
     title: str
+    author: Optional[str] = None
     url: str
     subreddit: str
     date: Optional[str] = None
@@ -13,6 +14,7 @@ class Post(BaseModel):
     media_url: Optional[str] = None
     num_comments: int
     comments: List[Dict[str, Any]]
+    
 
 class SentimentSummary(BaseModel):
     counts: Dict[str, int]

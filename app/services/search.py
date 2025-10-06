@@ -68,6 +68,7 @@ def search_posts(query: str, sort: str, limit: int = 50) -> SearchResponse:
             return Post(
                 id=post.id,
                 title=post.title,
+                author=post.author.name,
                 url=f"https://www.reddit.com{post.permalink}",
                 subreddit=post.subreddit.display_name,
                 date=created_time.strftime('%Y-%m-%d %H:%M:%S'),
@@ -77,6 +78,7 @@ def search_posts(query: str, sort: str, limit: int = 50) -> SearchResponse:
                 media_url=media_url,
                 num_comments=post.num_comments,
                 comments=posts_comments
+                
             )
 
         except Exception as e:

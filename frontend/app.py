@@ -3,15 +3,15 @@ import requests
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-from urllib.parse import urlparse
 from urllib.parse import quote_plus
 
 API_URL = "http://localhost:8000"
 
 st.set_page_config(page_title="Reddit Sentiment Dashboard", layout="wide")
 
-st.title("Análisis de Sentimientos en Reddit")
+#<========= FORMULARIO BÚSQUEDA =========>#
 
+st.title("Análisis de Sentimientos en Reddit")
 
 with st.form(key="search_form"):
     c1, c2 = st.columns([6,2])
@@ -39,15 +39,58 @@ with st.spinner("Buscando en Reddit..."):
         st.stop()
         
     data = resp.json()
-    
-st.write("")
+
+#<========= END/FORMULARIO BÚSQUEDA =========>#
 
 r_global = data.get('global', {})
 subs = data.get("subreddits", {})
+posts = data.get("posts", {})
 
-top_subreddit = None
-if data.get("subreddits"):
-    top_subreddit = sorted(subs, key=lambda s: s.get("total_comments",0), reverse=True)[0]["subreddit"]
+def get_posts(p, section):
+
+    cols = st.columns([5,2,1,1,1])
+    
+    title = p['title']
+    max_len = 70
+    display_title = title if len(title) <= max_len else title[:max_len] + "..."
+    title_md = f"[{display_title}]({p['url']})"
+    
+    subreddit = f'[r/{p.get("subreddit")}](https://www.reddit.com/r/{quote_plus(p.get("subreddit"))})'
+    cols[0].markdown(title_md, unsafe_allow_html=True)
+    
+    if section == "s":
+        cols[1].markdown(f'🧑‍💻 {p.get("author")}')
+    else:
+        cols[1].markdown(subreddit, unsafe_allow_html=True)
+    
+    cols[2].write(f'🔺 {p.get("karma")}')
+    
+    cols[3].write(f'💬 {p.get("num_comments")}')
+    
+    dom_sent = p["sentiments"]["dominant"]
+
+    icons = {
+        "positive": "✅",
+        "negative": "❌",
+        "neutral": "😐"
+    }
+
+    dom = f"{icons.get(dom_sent, '❓')} {dom_sent}"
+        
+    badge = f"**{dom.capitalize()}**"
+    cols[4].write(badge)
+
+st.write("")
+
+#<========= DATOS GLOBAL =========>#
+
+top_subreddit = sorted(subs, key=lambda s: s.get("total_comments",0), reverse=True)[0]["subreddit"]
+
+st.write("")
+
+st.subheader(f" 🔍 Resultados para '{topic}' ordenados por '{order}'")
+
+st.write("")
 
 col1, col2, col3, col4 = st.columns([2, 2, 2, 3])
 
@@ -56,7 +99,7 @@ col2.metric("Comentarios Totales", r_global.get('total_comments'))
 col3.metric("Sentimiento dominante", r_global.get('dominant'))
 col4.metric("Subreddit con mas posts", "r/" + top_subreddit)
 
-st.markdown("---")
+st.divider()
 
 left_col, right_col = st.columns([2, 2])
 
@@ -102,8 +145,12 @@ with right_col:
     ))
 
     st.plotly_chart(fig, use_container_width=True)
+    
+#<========= END/DATOS GLOBAL =========>#
         
-st.markdown("---")
+st.divider()
+
+#<========= SUBREDDIT =========>#
 
 st.subheader("Subreddits")
 st.markdown("Los 10 subreddits más activos en los posts analizados")
@@ -137,47 +184,30 @@ else:
             
         with c5:
             st.write(f"❌ {pct_neg:.1f}%")
+        
+        with st.expander("Ver posts"):
+            for p in posts:
+                if p.get("subreddit") == name:
+                    get_posts(p, "s")
             
-st.markdown("---")
+ 
+#<========= END/SUBREDDIT =========>#            
+            
+st.divider()
+
+#<========= POSTS =========>#
 
 st.subheader("Posts")
 st.markdown("Los 10 posts más activos")
 
 st.write("")
       
-posts = data["posts"]
 posts_sorted = sorted(posts, key=lambda p: p.get("num_comments", 0), reverse=True)
 
 for p in posts_sorted[:10]:
-    cols = st.columns([5,2,1,1,1])
     
-    title = p['title']
-    max_len = 70
-    display_title = title if len(title) <= max_len else title[:max_len] + "..."
-    title_md = f"[{display_title}]({p['url']})"
-    
-    subreddit = f'[r/{p.get("subreddit")}](https://www.reddit.com/r/{quote_plus(p.get("subreddit"))})'
-    cols[0].markdown(title_md, unsafe_allow_html=True)
-    
-    cols[1].markdown(subreddit, unsafe_allow_html=True)
-    
-    cols[2].write(f'🔺 {p.get("karma")}')
-    
-    cols[3].write(f'💬 {p.get("num_comments")}')
-    
-    dom_sent = p["sentiments"]["dominant"]
-
-    icons = {
-        "positive": "✅",
-        "negative": "❌",
-        "neutral": "😐"
-    }
-
-    dom = f"{icons.get(dom_sent, '❓')} {dom_sent}"
+    get_posts(p, "p")
         
-    badge = f"**{dom.capitalize()}**"
-    cols[4].write(badge)
-    
     with st.expander("Ver detalle"):
         if "comments" not in p:
             detail = requests.get(f"{API_URL}/posts/{p['id']}").json()
@@ -189,8 +219,27 @@ for p in posts_sorted[:10]:
         for c in detail.get("top_comments", [])[:5]:
             st.markdown(f"- **{c['sentiment'].upper()}** ({c.get('sentiment_score',0):.2f}) — {c['body'][:200]}")  
 
+    comments = p.get("comments", [])
+
+    comments_sorted = sorted(
+        comments,
+        key=lambda p: p.get("karma", 0),
+        reverse=True
+    )
+    
+    with st.expander("Ver cometarios"):
+        if "comments" not in p:
+            st.info("Sin comentarios para mostrar.")
+        else:
+            for c in comments_sorted[:5]:
+                st.markdown(f"{c.get('text')}")
+                
+    st.divider()
+    st.write("")
+                
+#<========= END/POSTS =========>#
 
 st.write("")
 st.markdown("*Nota: Se toma una muestra de hasta 50 publicaciones, y para cada una se analizan un máximo de 15 comentarios, con el fin de no saturar el proceso. En el apartado de *posts*, los comentarios mostrados no coinciden con los analizados individualmente, ya que se presenta el total de comentarios por publicación, no solo los que fueron analizados.")
-st.markdown("---")
+st.divider()
 st.caption("Dashboard creado con Streamlit • Backend: FastAPI • Análisis de sentimientos: cardiffnlp/twitter-roberta-base-sentiment-latest")

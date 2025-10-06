@@ -34,12 +34,14 @@ def analyze_post(post):
     return {
         "id": post.get("id"),
         "title": post.get("title"),
+        "author": post.get("author"),
         "url": post.get("url"),
         "subreddit": post.get("subreddit"),
         "karma": int(post.get("karma") or post.get("score") or 0),
         "num_comments": int(post.get("num_comments") or len(comments)),
         "sentiments": sentiments_summary,
-        "comments": comments,
+        "comments": comments
+        
     }
     
 def compute_metrics(posts, query: str = "", sort: str = ""):
