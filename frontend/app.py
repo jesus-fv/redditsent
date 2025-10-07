@@ -9,6 +9,8 @@ API_URL = "http://localhost:8000"
 
 st.set_page_config(page_title="Reddit Sentiment Dashboard", layout="wide")
 
+DEFAULT_IMAGE = "https://placehold.co/800x450/eeeeee/ff4500?text=Reddit+Post"
+
 #<========= FORMULARIO BÚSQUEDA =========>#
 
 st.title("Análisis de Sentimientos en Reddit")
@@ -48,7 +50,7 @@ posts = data.get("posts", {})
 
 def get_posts(p, section):
 
-    cols = st.columns([5,2,1,1,1])
+    cols = st.columns([2,1,2,2,2,2,2])
     
     title = p['title']
     max_len = 70
@@ -56,24 +58,37 @@ def get_posts(p, section):
     title_md = f"[{display_title}]({p['url']})"
     
     subreddit = f'[r/{p.get("subreddit")}](https://www.reddit.com/r/{quote_plus(p.get("subreddit"))})'
-    
+
     media_url = p.get("media_url")
-    if media_url.endswith(".mp4") or "reddit_video" in media_url:
-        st.video(media_url, width=200)
+
+    if media_url:
+        try:
+            r = requests.head(media_url, headers={"User-Agent": "Mozilla/5.0"}, allow_redirects=True, timeout=5)
+            if r.status_code == 200:
+                if media_url.endswith(".mp4") or "reddit_video" in media_url:
+                    cols[0].video(media_url, width=200)
+                else:
+                    cols[0].image(media_url, use_container_width=True, width=200)
+            else:
+                cols[0].image(DEFAULT_IMAGE, use_container_width=True, width=200)
+        except Exception:
+            cols[0].image(DEFAULT_IMAGE, use_container_width=True, width=200)
     else:
-        st.image(media_url, use_container_width=True, width=200)
-    
-    cols[0].markdown(title_md, unsafe_allow_html=True)
+        cols[0].image(DEFAULT_IMAGE, use_container_width=True, width=200)
+
+    cols[1].write("")
+
+    cols[2].markdown("📌 " + title_md, unsafe_allow_html=True)
     
     if section == "s":
-        cols[1].markdown(f'🧑‍💻 {p.get("author")}')
+        cols[3].markdown(f'🧑‍💻 {p.get("author")}')
         
     else:
-        cols[1].markdown(subreddit, unsafe_allow_html=True)
+        cols[3].markdown(subreddit, unsafe_allow_html=True)
     
-    cols[2].write(f'🔺 {p.get("karma")}')
+    cols[4].write(f'🔺 {p.get("karma")}')
     
-    cols[3].write(f'💬 {p.get("num_comments")}')
+    cols[5].write(f'💬 {p.get("num_comments")}')
     
     dom_sent = p["sentiments"]["dominant"]
 
@@ -86,17 +101,13 @@ def get_posts(p, section):
     dom = f"{icons.get(dom_sent, '❓')} {dom_sent}"
         
     badge = f"**{dom.capitalize()}**"
-    cols[4].write(badge)
+    cols[6].write(badge)
 
 st.write("")
 
 #<========= DATOS GLOBAL =========>#
 
 top_subreddit = sorted(subs, key=lambda s: s.get("total_comments",0), reverse=True)[0]["subreddit"]
-
-st.write("")
-
-st.subheader(f" 🔍 Resultados para '{topic}' ordenados por '{order}'")
 
 st.write("")
 
