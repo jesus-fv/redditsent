@@ -6,7 +6,6 @@ from app.models.schemas import Post, SearchResponse
 from app.utils.text_cleaner import text_cleaner
 import concurrent.futures
 from app.services.sentiment import sentiment_analysis
-from app.services.analytics import compute_metrics
 
 # Inicializar Reddit API
 reddit = praw.Reddit(
@@ -15,8 +14,10 @@ reddit = praw.Reddit(
     user_agent=settings.reddit_user_agent,
 )
 
+DEFAULT_IMAGE = "https://placehold.co/800x450/eeeeee/ff4500?text=Reddit+Post"
+
 # Buscar posts en Reddit
-def search_posts(query: str, sort: str, limit: int = 50) -> SearchResponse:
+def search_posts(query: str, sort: str, limit: int = 5) -> SearchResponse:
 
     # Validar parámetros
     if sort not in ["new", "hot", "top", "relevant"]:
@@ -33,15 +34,22 @@ def search_posts(query: str, sort: str, limit: int = 50) -> SearchResponse:
             
             created_time = datetime.datetime.fromtimestamp(post.created_utc)
 
-            #Contenido multimedia del post
             media_url = None
-            if post.is_video:
-                if post.media and 'reddit_video' in post.media:
-                    media_url = post.media['reddit_video']['fallback_url']
+
+            if post.media and 'reddit_video' in post.media:
+                media_url = post.media['reddit_video']['fallback_url']
             elif hasattr(post, 'is_gallery') and post.is_gallery:
-                media_url = 'gallery'
+                try:
+                    first_item = list(post.media_metadata.values())[0]
+                    media_url = first_item['s']['u']
+                except Exception:
+                    media_url = DEFAULT_IMAGE
             elif post.url.endswith(('jpg', 'jpeg', 'png', 'gif')):
                 media_url = post.url
+            elif hasattr(post, 'preview') and 'images' in post.preview:
+                media_url = post.preview['images'][0]['source']['url']
+            else:
+                media_url = DEFAULT_IMAGE
             
             posts_comments: List[Dict[str, Any]] = []
     

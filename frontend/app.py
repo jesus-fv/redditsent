@@ -56,10 +56,18 @@ def get_posts(p, section):
     title_md = f"[{display_title}]({p['url']})"
     
     subreddit = f'[r/{p.get("subreddit")}](https://www.reddit.com/r/{quote_plus(p.get("subreddit"))})'
+    
+    media_url = p.get("media_url")
+    if media_url.endswith(".mp4") or "reddit_video" in media_url:
+        st.video(media_url, width=200)
+    else:
+        st.image(media_url, use_container_width=True, width=200)
+    
     cols[0].markdown(title_md, unsafe_allow_html=True)
     
     if section == "s":
         cols[1].markdown(f'🧑‍💻 {p.get("author")}')
+        
     else:
         cols[1].markdown(subreddit, unsafe_allow_html=True)
     

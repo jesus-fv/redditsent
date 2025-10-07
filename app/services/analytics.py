@@ -39,6 +39,7 @@ def analyze_post(post):
         "subreddit": post.get("subreddit"),
         "karma": int(post.get("karma") or post.get("score") or 0),
         "num_comments": int(post.get("num_comments") or len(comments)),
+        "media_url": post.get("media_url"),
         "sentiments": sentiments_summary,
         "comments": comments
         
