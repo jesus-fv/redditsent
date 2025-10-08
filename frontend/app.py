@@ -163,7 +163,7 @@ st.divider()
 #<========= SUBREDDIT =========>#
 
 st.subheader("Subreddits")
-st.markdown("Los 10 subreddits más activos en los posts analizados")
+st.markdown("Los subreddits más activos en los posts analizados")
 
 if not subs:
     st.info("No hay subreddits para mostrar.")
@@ -209,7 +209,7 @@ space(1)
 st.divider()
 
 st.subheader("Posts")
-st.markdown("Los 10 posts más activos")
+st.markdown("Los posts más activos")
 
 space(1)
       
