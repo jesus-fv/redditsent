@@ -16,6 +16,8 @@ reddit = praw.Reddit(
 
 DEFAULT_IMAGE = "https://placehold.co/800x450/eeeeee/ff4500?text=Reddit+Post"
 
+DEFAULT_IMAGE_VIDEO = "https://placehold.co/800x450/eeeeee/ff4500?text=Video"
+
 # Buscar posts en Reddit
 def search_posts(query: str, sort: str, limit: int = 50) -> SearchResponse:
 
@@ -37,7 +39,7 @@ def search_posts(query: str, sort: str, limit: int = 50) -> SearchResponse:
             media_url = None
 
             if post.media and 'reddit_video' in post.media:
-                media_url = post.media['reddit_video']
+                media_url = DEFAULT_IMAGE_VIDEO
             elif hasattr(post, 'is_gallery') and post.is_gallery:
                 try:
                     first_item = list(post.media_metadata.values())[0]
