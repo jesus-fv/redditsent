@@ -3,19 +3,22 @@ from collections import Counter, defaultdict
 SENT_CATS = ["positive", "negative", "neutral", "unknown"]
  
 def summarize_sentiments(comments):
+    """
+    Resumen de análisis de sentimientos para una lista de comentarios.
+    """
     
     counts = Counter()
     scores = []
     
     for comment in comments:
-        cat = comment.get("sentiment_label")
-        counts[cat] += 1
+        sentiment_label = comment.get("sentiment_label")
+        counts[sentiment_label] += 1
         sc = comment.get("sentiment_score")
         if sc is not None:
             scores.append(sc)
     
     total = sum(counts.values())
-    percentages = {cat: (counts.get(cat, 0) / total * 100) if total > 0 else 0.0 for cat in SENT_CATS}
+    percentages = {sentiment_label: (counts.get(sentiment_label, 0) / total * 100) if total > 0 else 0.0 for sentiment_label in SENT_CATS}
     mean_score = round(sum(scores) / len(scores), 4) if scores else None
     dominant = max(SENT_CATS, key=lambda k: counts.get(k, 0)) if total > 0 else "unknown"
 
@@ -27,7 +30,9 @@ def summarize_sentiments(comments):
 }
     
 def analyze_post(post):
-    
+    """ 
+    Análisis de un post individual con resumen de sentimientos.
+    """
     comments = post.get("comments") or []
     sentiments_summary = summarize_sentiments(comments)
     
@@ -46,6 +51,10 @@ def analyze_post(post):
     }
     
 def compute_metrics(posts, query: str = "", sort: str = ""):
+    
+    """
+    Cálculo de métricas agregadas y por subreddit para una lista de posts.
+    """
 
     all_comments = []
     processed_posts = []
