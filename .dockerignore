@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+.vscode/
+venv/
+.venv/
+.env
+.DS_Store
+
+# Modelos descargados localmente
+models_cache/

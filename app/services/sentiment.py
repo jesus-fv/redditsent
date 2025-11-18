@@ -9,7 +9,7 @@ device = -1
 
 classifier = pipeline("sentiment-analysis", model=model, tokenizer=tokenizer, device=device)
 
-async def sentiment_analysis(text):
+def sentiment_analysis(text):
     
     if len(text) < 5 or text == "[deleted]" or text == "[removed]":
         return {"label": "unknown", "score": None}

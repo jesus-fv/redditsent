@@ -1,0 +1,27 @@
+version: "3.9"
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    environment:
+      # Evita descargar modelos cada vez que se levanta el contenedor
+      TRANSFORMERS_CACHE: /app/models_cache
+
+  streamlit:
+    build:
+      context: .
+      dockerfile: Dockerfile.front
+    ports:
+      - "8501:8501"
+    volumes:
+      - .:/app
+    environment:
+      TRANSFORMERS_CACHE: /app/models_cache
+    depends_on:
+      - api

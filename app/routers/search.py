@@ -3,7 +3,6 @@ from fastapi import APIRouter, HTTPException, Query
 from typing import Optional, Annotated
 
 from app.services.search import search_posts
-from app.models.schemas import SearchResponse
 
 router = APIRouter(prefix="/search", tags=["Search"])
 
