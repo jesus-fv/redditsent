@@ -5,13 +5,11 @@ model_name = "cardiffnlp/twitter-roberta-base-sentiment-latest"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForSequenceClassification.from_pretrained(model_name)
 
-device = 0 if torch.cuda.is_available() else -1
-if device == 0:
-    model.cuda()
+device = -1
 
 classifier = pipeline("sentiment-analysis", model=model, tokenizer=tokenizer, device=device)
 
-def sentiment_analysis(text):
+async def sentiment_analysis(text):
     
     if len(text) < 5 or text == "[deleted]" or text == "[removed]":
         return {"label": "unknown", "score": None}

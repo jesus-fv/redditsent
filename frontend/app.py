@@ -20,7 +20,7 @@ with st.form(key="search_form"):
     with cols_form[0]:
         topic = st.text_input("Buscar tema", placeholder="Ej: Spain")
     with cols_form[1]:
-        order = st.selectbox("Orden", [ "relevant", "hot", "new", "top"])
+        order = st.selectbox("Orden", [ "hot", "relevant", "new", "top"])
         
     st.markdown("")
     submit = st.form_submit_button("Buscar")
