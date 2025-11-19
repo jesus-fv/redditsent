@@ -1,6 +1,5 @@
 FROM python:3.11-slim
 
-# Dependencias del sistema mínimas necesarias para determinadas librerías de Python
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     g++ \
@@ -8,9 +7,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-COPY requirements.txt .
+COPY requirements_api.txt .
 
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements_api.txt
 
 COPY . .
 

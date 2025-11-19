@@ -1,0 +1,9 @@
+torch --index-url https://download.pytorch.org/whl/cpu
+
+transformers==4.51.3
+fastapi==0.121.2
+uvicorn[standard]
+praw==7.8.1
+pydantic==2.12.4
+pydantic_settings==2.12.0
+pandas==2.3.3

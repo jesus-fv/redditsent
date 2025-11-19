@@ -1,12 +1,46 @@
+# Python
 __pycache__/
 *.py[cod]
-.pytest_cache/
-.coverage
-.vscode/
+*.pyo
+*.pyd
+*.so
+
+# Entornos virtuales
 venv/
 .venv/
+
+# Config y entornos
 .env
+*.env
+
+# Editor
+.vscode/
+.idea/
+
+# OS
 .DS_Store
 
-# Modelos descargados localmente
+# Pruebas
+.pytest_cache/
+.coverage
+.coverage.*
+
+# Archivos grandes / temporales
 models_cache/
+cache/
+*.pt
+*.bin
+*.safetensors
+*.h5
+
+# Carpeta de logs
+logs/
+*.log
+
+# Carpeta de datos crudos
+data_raw/
+datasets/
+
+# Carpeta de build
+dist/
+build/
