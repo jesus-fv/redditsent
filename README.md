@@ -1,56 +1,116 @@
 # Explorador de Opiniones en Reddit
 
-## Descripción
+### Descripción
 
-Esta aplicación analiza publicaciones en Reddit para determinar la opinión en **tiempo real** sobre un temma en concreto.
+Este proyecto consiste en un sistema integral de análisis de sentimientos para Reddit. A partir de un criterio de búsqueda, la aplicación extrae las publicaciones más relevantes (recientes o populares) y clasifica sus comentarios según su polaridad: positiva, neutral o negativa. El objetivo es proporcionar una herramienta intuitiva para visualizar, en tiempo real, la percepción pública sobre cualquier tema.
 
-## Instalación 
+#### La arquitectura está dividida en dos partes:
 
-### Requisitos previos  
+- Backend (API REST): Desarrollado sobre FastAPI, este componente orquesta la conexión con la API oficial de Reddit mediante el cliente PRAW. Su función principal es la extracción eficiente de publicaciones y comentarios, así como la ejecución del pipeline de análisis de sentimiento utilizando el modelo pre-entrenado cardiffnlp/twitter-roberta-base-sentiment-latest.
 
-Antes de comenzar, asegúrate de tener instalado:  
-- [Python 3.10+](https://www.python.org/downloads/)  
-- [pip](https://pip.pypa.io/en/stable/) 
+- Frontend (UI): Implementado en Streamlit, proporciona una interfaz gráfica interactiva que permite al usuario realizar consultas de búsqueda, visualizar métricas de datos y explorar detalladamente la clasificación de sentimientos inferida por el modelo.
 
-### Pasos  
-1. Clona este repositorio:  
+#### El proyecto ha sido construido utilizando las siguientes tecnologías y librerías:
+
+- Python 3.10+: Entorno de ejecución base.
+
+- FastAPI: Framework moderno de alto rendimiento para la construcción de la API REST.
+
+- Streamlit: Herramienta para el desarrollo ágil de la interfaz de usuario y visualización de datos.
+
+- PRAW (Python Reddit API Wrapper): Librería para la integración y acceso a datos de Reddit mediante autenticación OAuth2.
+
+- Hugging Face Transformers: Biblioteca para la implementación e inferencia del modelo de NLP (RoBERTa).
+
+- Pydantic: Gestión de esquemas, serialización y validación rigurosa de datos.
+
+- Uvicorn: Servidor ASGI ligero para el despliegue de la aplicación asíncrona.
+
+- Docker & Docker Compose: Solución para la contenerización de servicios y orquestación del despliegue local.
+
+## Instalación y Ejecución
+
+El proyecto puede ejecutarse de dos formas: utilizando **Docker** (recomendado) o mediante una instalación manual con **Python**.
+
+1. Clona el repositorio:
 
 ```bash
 git clone https://github.com/jesus-fv/redditsent.git
 cd redditsent
 ```
 
-2. Crea y activa un entorno virtual
+* Antes de comenzar, asegúrate de configurar tus variables de entorno:
+
+## Opción 1 — Ejecutar con Docker
+
+
+### Levanta los servicios:
 
 ```bash
-python -m venv venv
-source venv/bin/activate
+docker compose up --build -d
 ```
 
-3. Instala las dependencias
+### Esto iniciará:
+
+| Servicio | URL | Descripción |
+|--------------|--------------|--------------|
+| Frontend (Streamlit) | http://localhost:8501 | Interfaz de usuario |
+| Backend (FastAPI) | http://localhost:8000/docs | Documentación interactiva (Swagger) |
+
+### Detener los servicios:
+
+```bash
+docker compose down
+```
+
+## Opción 2 — Instalación Manual (Python)
+
+### Requisitos
+
+- Python 3.10+
+
+- pip
+
+### Instalación
+
+### Crea y activa un entorno virtual
+
+```bash
+# macOS/Linux
+python -m venv venv
+source venv/bin/activate
+
+# Windows
+python -m venv venv
+venv\Scripts\activate
+```
+
+### Instala las dependencias:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## Ejecución
+### Ejecución manual
 
-Para levantar la aplicación, **necesitarás tener dos terminales abiertas simultáneamente**, una para el backend y otra para el frontend.
+Necesitarás dos terminales abiertas.
 
-Asegurate de estar en la raiz del proyecto.
+Asegúrate de estar en la raíz del proyecto.
 
-### **Terminal 1: Iniciar el Backend (FastAPI)**
+### Terminal 1 — Backend (FastAPI)
 
 ```bash
-uvicorn app.main:app --reload
+uvicorn app.main:app --reload --port 8000
 ```
 
-### **Terminal 2: Iniciar el Frontend (Streamlit)**
+### Terminal 2 — Frontend (Streamlit)
 
 ```bash
 streamlit run frontend/app.py
 ```
 
-Una vez en ejecución, abre el navegador en http://localhost:8501 o la URL indicada en consola.
+### Acceso
 
+Frontend: http://localhost:8501
 
+Backend Docs: http://localhost:8000/docs
