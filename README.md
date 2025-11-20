@@ -88,7 +88,8 @@ venv\Scripts\activate
 ### Instala las dependencias:
 
 ```bash
-pip install -r requirements.txt
+pip install -r app/requirements_api.txt
+pip install -r frontend/requirements.txt
 ```
 
 ### Ejecución manual
