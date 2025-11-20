@@ -1,11 +1,12 @@
 import streamlit as st
+import os
 import requests
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 from urllib.parse import quote_plus
 
-API_URL = "http://api:8000"
+API_URL = os.getenv("API_URL", "http://localhost:8000")
 
 st.set_page_config(page_title="Reddit Sentiment Dashboard", layout="wide")
 
