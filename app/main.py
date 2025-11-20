@@ -10,6 +10,13 @@ app = FastAPI(
     version="1.0.0",
 )
 
+@app.get("/")
+def read_root():
+    return {
+        "service": "Reddit Sentiment Analysis API",
+        "status": "up"
+    }
+
 # Configurar CORS
 app.add_middleware(
     CORSMiddleware,
