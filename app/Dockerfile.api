@@ -9,7 +9,7 @@ WORKDIR /app
 
 RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
 
-COPY requirements_api.txt .
+COPY app/requirements_api.txt .
 
 RUN pip install --no-cache-dir -r requirements_api.txt
 
