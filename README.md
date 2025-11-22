@@ -32,6 +32,10 @@ Este proyecto consiste en un sistema integral de análisis de sentimientos para 
 
 El proyecto puede ejecutarse de dos formas: utilizando **Docker** (recomendado) o mediante una instalación manual con **Python**.
 
+## 🎞️ Preview
+
+https://github.com/user-attachments/assets/0f49e58d-ed46-484d-b531-c2b3dfef3af4
+
 1. Clona el repositorio:
 
 ```bash
